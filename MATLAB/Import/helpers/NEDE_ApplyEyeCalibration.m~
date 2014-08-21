@@ -1,0 +1,113 @@
+function [xAfter yAfter] = NEDE_ApplyEyeCalibration(xBefore, yBefore, info)
+
+% Convert eye position from Eyelink coordinates to Unity coordinates.
+%
+% [xAfter yAfter] = NEDE_ApplyEyeCalibration(xBefore, yBefore, info)
+% xyAfter = ApplyEyeCalibration(xyBefore, info)
+% xOut = ApplyEyeCalibration(x)
+%
+% Inputs:
+%   - xBefore and yBefore are 1xn vectors of horizontal and vertical eye 
+%     positions (e.g., the raw eye position reported by eyelink).
+%   - info is a calibration struct with fields offset_x, offset_y, gain_x
+%     and gain_y.
+%   - xyBefore is a 2-column matrix in which the first column is horizontal
+%     eye positions and the second is vertical eye positions before 
+%     calibration.
+%   - x is a NEDE data structure as imported by NEDE_ImportData. It
+%     must, specifically, have the x.params.eyelink field intact.
+%
+% Outputs:
+%   - xAfter and yAfter are the corresponding 1xn vectors of horizontal and
+%     vertical eye position that accurately reflect the subject's eye
+%     position in screen coordinates during the Unity experiment.
+%   - xyAfter is a 2-column matrix in which the first column is horizontal
+%     eye positions and the second is vertical eye positions after
+%     calibration.
+%   - xOut is identical to x, but with the inputs updated.
+% 
+% Created 10/1/10 by DJ.
+% Updated 3/28/11 by DJ - allows two-column [x,y] input and output.
+% Updated 5/6/11 by DJ - comments.
+% Updated 8/8/11 by DJ - added isCalibrated check to prevent calibrating twice
+% Updated 11/8/11 by DJ - avoid error for non-raw inputs in isCalibrated
+% Updated 5/13/13 by DJ - added x --> xOut format
+% Updated 12/5/13 by DJ - added empty input check
+
+% Empty in, empty out
+if isempty(xBefore)
+    xAfter = [];
+    yAfter = [];
+    return;
+end
+
+% (xy, info) input format
+if nargin==2 && nargout==1 % two-column input and output format
+    % properly parse inputs
+    x = yBefore;
+    yBefore = xBefore(:,2);
+    xBefore = xBefore(:,1);
+end
+
+% x --> xOut format
+if nargin==1 && nargout==1
+    % get input
+    x = xBefore;
+    % Adjust saccade and fixation positions    
+    x.events.saccade.position_start = ApplyEyeCalibration(x.events.saccade.position_start, x.params.eyelink);
+    x.events.saccade.position_end = ApplyEyeCalibration(x.events.saccade.position_end, x.params.eyelink);
+    x.events.fixation.position = ApplyEyeCalibration(x.events.fixation.position, x.params.eyelink);
+    % set output
+    xAfter = x;
+    return;
+end
+
+% Check if this has already been done!
+if isCalibrated(xBefore,yBefore,x)
+    disp('Eye position has already been calibrated!  Skipping this step...')
+    xAfter = xBefore;
+    yAfter = yBefore;
+else
+    
+
+    % perform calibration
+    xAfter = (xBefore - x.calibration.eye_offset_x) * x.calibration.eye_gain_x;
+    yAfter = (yBefore - x.calibration.eye_offset_y) * x.calibration.eye_gain_y;
+
+    if isCalibrated(xAfter,yAfter,x)
+        disp('Calibration completed successfully!');
+    else
+        warning('Calibration does not match x.eyelink.saccade_positions...')
+        disp('Calibration complete!')
+    end
+end
+
+
+% (xy, info) output format
+if nargin==2 && nargout==1 % two-column input and output format
+    % concatenate outputs
+    xAfter = [xAfter, yAfter];
+end
+
+end
+
+
+% Check whether calibration has been done
+function isDone = isCalibrated(xpos,ypos,x)
+
+    if ~isfield(x.eyelink,'saccade_times') || (x.eyelink.saccade_times(1) - x.eyelink.record_time + 1)>length(xpos)
+        isDone = false;
+        disp('Skipping isCalibrated check...')
+    else
+        first_saccade_time = x.eyelink.saccade_times(1) - x.eyelink.record_time + 1;
+        first_saccade_truth = x.eyelink.saccade_positions(1,:);
+
+        first_saccade_pos = [xpos(first_saccade_time), ypos(first_saccade_time)];
+        if first_saccade_pos == first_saccade_truth
+            isDone = true;
+        else
+            isDone = false;
+        end
+    end
+
+end

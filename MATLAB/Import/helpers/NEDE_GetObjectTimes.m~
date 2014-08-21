@@ -1,0 +1,42 @@
+function [object_nums,object_times] = NEDE_GetObjectTimes(visible, maxFrameTime)
+
+% Generates a timestamp and event number for each time an object enters or
+% exits the subject's view.
+%
+% [object_nums, object_times] = NEDE_GetObjectTimes(visible)
+% 
+% INPUT object_limits is an nx6 matrix, where n is the number of frames in
+% which an object was visible.  It is the output of get_objectlimits.m.
+% OUTPUT object_times is an mx2 matrix, where m is the number of frames in
+% which an object entered or exited the scene.
+%
+% Created 8/18/10 by DJ.
+% Updated 8/19/10 by DJ - added Numbers.LAG_BETWEEN_FRAMES
+
+% Inputs
+if nargin<2 || isempty(maxFrameTime)
+    maxFrameTime = 100; 
+end
+threshold = maxFrameTime; % time (in ms) between sightings for something to be considered an exit and re-entrance.
+
+% Setup
+all_objects = unique(visible.object); % all objects that were seen
+times = visible.time; % extract times for easy access.
+object_nums = [];
+object_times = [];
+
+% Get object events
+for i = 1:numel(all_objects)
+    ontimes = times(visible.object==all_objects(i));
+    object_times = [object_times; ontimes(1)];
+    iGaps = find(diff(ontimes)>threshold);
+    for j = 1:numel(iGaps)
+        object_times = [object_times; ontimes(iGaps(j)) Numbers.EXITS + object_nums(i)];
+        object_times = [object_times; ontimes(iGaps(j)+1) Numbers.ENTERS + object_nums(i)];
+    end
+    object_times = [object_times; ontimes(end) Numbers.EXITS + object_nums(i)];
+end
+
+% Sort into chronological order
+[foo order] = sort(object_times(:,1));
+object_times = object_times(order,:);
