@@ -36,7 +36,7 @@
 // - Updated 7/8/14 by DJ - upgraded to wrapper 2.0 (cleaner code)
 //
 //---------------------------------------------------------------
-// Copyright (C) 2014 David Jangraw, <www.nede-neuro.org>
+// Copyright (C) 2014 David Jangraw, <github.com/djangraw/nede>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

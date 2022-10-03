@@ -15,7 +15,7 @@
 // Updated 10/22/13 by DJ - added numbered dots, slider labels, comments.
 //
 //---------------------------------------------------------------
-// Copyright (C) 2014 David Jangraw, <www.nede-neuro.org>
+// Copyright (C) 2014 David Jangraw, <github.com/djangraw/nede>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

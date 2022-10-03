@@ -9,7 +9,7 @@
 // - Updated 11/22/13 by DJ - switched popupType to objType, cleaned up & commented code
 //
 //---------------------------------------------------------------
-// Copyright (C) 2014 David Jangraw, <www.nede-neuro.org>
+// Copyright (C) 2014 David Jangraw, <github.com/djangraw/nede>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by

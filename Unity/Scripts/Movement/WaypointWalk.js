@@ -14,7 +14,7 @@
 // - Updated 6/4/14 by DJ - changed from "Tsp" to "Waypoint"
 //
 //---------------------------------------------------------------
-// Copyright (C) 2014 David Jangraw and Meron Gribetz, <www.nede-neuro.org>
+// Copyright (C) 2014 David Jangraw and Meron Gribetz, <github.com/djangraw/nede>
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
